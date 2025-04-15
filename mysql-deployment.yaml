@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "rootpass"
+            - name: MYSQL_DATABASE
+              value: "parkdb"
+            - name: MYSQL_USER
+              value: "parkuser"
+            - name: MYSQL_PASSWORD
+              value: "parkpass"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: init-script
+          configMap:
+            name: mysql-init-script
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pv-claim
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-script
+data:
+  init.sql: |
+    CREATE TABLE `usuarios` (
+      `id` bigint NOT NULL AUTO_INCREMENT,
+      `criado_por` varchar(255) DEFAULT NULL,
+      `data_criacao` datetime(6) DEFAULT NULL,
+      `data_modificacao` datetime(6) DEFAULT NULL,
+      `modificado_por` varchar(255) DEFAULT NULL,
+      `password` varchar(200) NOT NULL,
+      `role` enum('ROLE_ADMIN','ROLE_CLIENTE') NOT NULL,
+      `username` varchar(100) NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `UKm2dvbwfge291euvmk6vkkocao` (`username`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    INSERT IGNORE INTO usuarios (`username`, `role`, `password`) VALUES ("elias@email.com", "ROLE_ADMIN", "123456"), ("larissa@email.com", "ROLE_CLIENTE", "123456");

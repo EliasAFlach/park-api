@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: park-api
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: park-api
+  template:
+    metadata:
+      labels:
+        app: park-api
+    spec:
+      containers:
+        - name: park-api
+          image: eliasflach/park-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: "mysql-service"
+            - name: DB_NAME
+              value: "park-api"
+            - name: DB_USER
+              value: "root"
+            - name: DB_PASSWORD
+              value: "root"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
