@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana-pv-volume
+  namespace: monitoring
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi # Grafana não precisa de tanto espaço quanto Prometheus inicialmente
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/grafana"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pv-claim
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi

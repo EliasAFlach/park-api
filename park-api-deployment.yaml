@@ -11,6 +11,10 @@ spec:
     metadata:
       labels:
         app: park-api
+      annotations:
+        prometheus.io/scrape: "true"         # Habilita a raspagem pelo Prometheus
+        prometheus.io/path: "/actuator/prometheus" # Caminho do endpoint de métricas (verifique na sua API!)
+        prometheus.io/port: "8080"           # Porta do container onde a API expõe métricas
     spec:
       containers:
         - name: park-api

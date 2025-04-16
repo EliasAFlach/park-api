@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.1.1 # Use uma versão recente ou a desejada
+          ports:
+            - containerPort: 3000 # Porta padrão do Grafana
+          env:
+            # Você pode definir o usuário/senha admin aqui, se desejar
+            # - name: GF_SECURITY_ADMIN_USER
+            #   value: "admin"
+            # - name: GF_SECURITY_ADMIN_PASSWORD
+            #   value: "suaSenhaSeguraAqui"
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning # Caminho onde Grafana procura configs de provisionamento
+          volumeMounts:
+            - name: grafana-storage
+              mountPath: /var/lib/grafana # Diretório de dados do Grafana
+            - name: grafana-datasources
+              mountPath: /etc/grafana/provisioning/datasources # Monta o ConfigMap de datasource
+            - name: grafana-dashboards-config # Monta config do dashboard provider
+              mountPath: /etc/grafana/provisioning/dashboards
+            # Se você quiser provisionar dashboards via ConfigMap com JSONs:
+            # - name: grafana-dashboards # Nome do volume do ConfigMap dos dashboards
+            #   mountPath: /var/lib/grafana/dashboards # Caminho definido no options do dashboards.yaml
+      volumes:
+        - name: grafana-storage
+          persistentVolumeClaim:
+            claimName: grafana-pv-claim
+        - name: grafana-datasources
+          configMap:
+            name: grafana-datasources
+        - name: grafana-dashboards-config
+          configMap:
+            name: grafana-dashboards-config
+        # Se for provisionar dashboards via ConfigMap:
+        # - name: grafana-dashboards
+        #   configMap:
+        #     name: meu-configmap-de-dashboards # Nome do ConfigMap contendo os JSONs
