@@ -13,4 +13,4 @@ CREATE TABLE `usuarios` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Inserção de usuário admin inicial (senha: Admin@123)
-INSERT IGNORE INTO usuarios (`username`, `role`, `password`) VALUES ("elias@email.com", "ROLE_CLIENTE", "123456"), ("larissa@email.com", "ROLE_CLIENTE", "123456");
+INSERT INTO usuarios (`username`, `role`, `password`) VALUES ("elias@email.com", "ROLE_CLIENTE", "123456"), ("larissa@email.com", "ROLE_CLIENTE", "123456");

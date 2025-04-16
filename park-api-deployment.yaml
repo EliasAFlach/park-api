@@ -18,23 +18,29 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: DB_HOST
-              value: "mysql-service"
-            - name: DB_NAME
-              value: "parkdb"
-            - name: DB_USER
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql-service:3306/parkdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+            - name: SPRING_DATASOURCE_USERNAME
               value: "parkuser"
-            - name: DB_PASSWORD
+            - name: SPRING_DATASOURCE_PASSWORD
               value: "parkpass"
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "800m"
+            requests:
+              memory: "512Mi"
+              cpu: "400m"
           livenessProbe:
             httpGet:
-              path: /actuator/health/liveness
+              path: /actuator/health
               port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 90
+            periodSeconds: 20
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 15
-            periodSeconds: 5
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
