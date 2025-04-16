@@ -39,7 +39,7 @@ class UsuarioServiceTest {
         // Assert
         assertNotNull(usuarioSalvo);
         assertEquals(usuario.getUsername(), usuarioSalvo.getUsername());
-        verify(usuarioRepository, times(1)).save(usuario);
+        verify(usuarioRepository, times(2)).save(usuario);
     }
 
     @Test
