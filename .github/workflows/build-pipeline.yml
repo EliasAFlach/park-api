@@ -1,0 +1,58 @@
+# .github/workflows/build-pipeline.yml
+
+name: Java CI com Gradle e Spring Boot # Nome do seu workflow (aparecerá na aba Actions do GitHub)
+
+# Gatilhos: Define quando o workflow será executado
+on:
+  push:
+    branches: [ "main" ] # Executa quando houver push na branch 'main' (ajuste se usar 'master' ou outra)
+  pull_request:
+    branches: [ "main" ] # Executa quando um pull request for aberto/atualizado para a branch 'main'
+  workflow_dispatch: # Permite executar manualmente pela interface do GitHub
+
+# Jobs: Define as tarefas a serem executadas
+jobs:
+  build: # Nome do job (pode ser qualquer nome)
+    # Runner: Define a máquina virtual onde o job será executado
+    runs-on: ubuntu-latest # Usando a versão mais recente do Ubuntu
+
+    # Steps: Define a sequência de tarefas (comandos ou actions)
+    steps:
+      # 1. Checkout do código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Action oficial para baixar o código
+
+      # 2. Configurar o Java Development Kit (JDK)
+      - name: Set up JDK 21 # Mude '17' para a versão do Java que seu projeto usa (ex: 11, 21)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21' # Especifique a versão do Java aqui
+          distribution: 'temurin' # Uma distribuição popular do OpenJDK
+
+      # 3. Configurar o Gradle (inclui cache de dependências para builds mais rápidos)
+      # A action setup-gradle lida automaticamente com o cache
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3 # Action oficial para configurar o Gradle
+
+      # 4. Dar permissão de execução para o Gradle Wrapper
+      # Necessário em ambientes Linux/macOS
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 5. Executar o build com Gradle
+      # O comando 'build' geralmente compila o código, roda os testes e empacota a aplicação (gera o JAR)
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # --- Opcional: Publicar o Artefato (JAR) ---
+      # Útil se você precisar do JAR para um próximo passo de deploy em outro job ou workflow
+      - name: Upload artifact
+        # Condição: Só faz upload se o evento foi um push para a branch 'main'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-jar # Nome do artefato que será armazenado
+          # Caminho para o JAR gerado pelo Spring Boot com Gradle
+          # Ajuste o padrão se o nome/local do seu JAR for diferente
+          path: build/libs/*.jar
+          retention-days: 7 # Opcional: Por quantos dias manter o artefato (padrão é 90)
