@@ -1,4 +1,4 @@
-name: Java CI com Gradle e Spring Boot
+name: park-api
 on:
   push:
     branches: [ "main" ]
